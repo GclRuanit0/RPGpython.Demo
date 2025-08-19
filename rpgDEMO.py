@@ -1,6 +1,7 @@
 import os
 import random
 import time
+import sys
 
 atributos = {
     "arqueiro": [100, 30],
@@ -50,13 +51,6 @@ inimigos = [
     {"nome": "Esqueleto", "vida": 80, "dano": 12},
     {"nome": "Ladrão", "vida": 120, "dano":10}
 ]
-inimigo = random.choice(inimigos)
-vida_inimigo = inimigo["vida"]
-tipo_inimigo = inimigo["nome"]
-dano_inimigo = inimigo["dano"]
-
-import sys
-import time
 
 def print_lento(texto, velocidade=0.08):
     for caractere in texto:
@@ -103,10 +97,10 @@ def usar_item():
         print("Item não encontrado.")
         return
     if item == "poção de vida":
-        vidaPlayer += 30
+        vidaPlayer += 70
         print("Você usou uma poção de vida e recuperou 30 de vida.")
     elif item == "poção de mana":
-        manaPlayer += 30
+        manaPlayer += 100
         print("Você usou uma poção de mana e recuperou 30 de mana.")
     else:
         print("Esse item não pode ser usado.")
@@ -183,9 +177,20 @@ def LvUp():
         print(f"\nSua Mana aumentou em 25 pontos")
 
 def batalha():
-    global vida_inimigo, vidaPlayer, manaPlayer, xp, nivel
+    global vida_inimigo, vidaPlayer, manaPlayer, xp
+    
 
-    print(f"\nUm {tipo_inimigo} apareceu! Vida: {vida_inimigo}\n")
+    inimigo = random.choice(inimigos)
+    vida_inimigo = inimigo["vida"]
+    tipo_inimigo = inimigo["nome"]
+    dano_inimigo = inimigo["dano"]
+
+    limpar()
+
+
+
+    print("\n                                                 ")
+    print_lento(f"\nUm {tipo_inimigo} apareceu! Vida: {vida_inimigo}\n")
 
     while vida_inimigo > 0 and vidaPlayer > 0:
         print("Seu turno:")
@@ -195,48 +200,41 @@ def batalha():
         print("1 - Atacar")
         print("2 - Inventário")
         print("3 - Fugir")
-        manaPlayer += 5
+        manaPlayer += 25
+        
         try:
             acao = int(input("Escolha uma ação: "))
         except ValueError:
-            print("Ação inválida.")
-            time.sleep(1)
-            limpar()
-            continue
+            print("Por favor, insira uma opção válida!")
+            continue 
 
         if acao == 1:
-            print("\nAtaques:")
+            print("\nAtaques disponíveis:")
             for i, atk in enumerate(ataques):
                 print(f"{i+1} - {atk['nome']} (Dano: {atk['dano']} | Mana: {atk['mana']})")
             try:
                 escolha = int(input("Escolha seu ataque: ")) - 1
                 if escolha not in range(len(ataques)):
-                    print("Ataque inválido.")
-                    time.sleep(1)
-                    limpar()
+                    print("Escolha inválida. Tente novamente.")
                     continue
+
                 ataque = ataques[escolha]
                 if manaPlayer < ataque["mana"]:
-                    print("Mana insuficiente.")
-                    time.sleep(1)
-                    limpar()
+                    print("Mana insuficiente para este ataque.")
                     continue
 
                 manaPlayer -= ataque["mana"]
                 vida_inimigo -= ataque["dano"]
-                print(f"\nVocê usou {ataque['nome']} e causou {ataque['dano']} de dano.")
+                print(f"\nVocê usou {ataque['nome']} e causou {ataque['dano']} de dano!")
 
                 if vida_inimigo <= 0:
                     print(f"{tipo_inimigo} foi derrotado!")
-                    xp += 25
-                    print(f"XP ganho: 25 | Total: {xp}/{xpreq}")
+                    xp += 30
+                    print(f"XP ganho: 30 | Total: {xp}/{xpreq}")
                     LvUp()
-
                     break
             except ValueError:
-                print("Escolha inválida.")
-                time.sleep(1)
-                limpar()
+                print("Entrada inválida, tente novamente.")
                 continue
 
         elif acao == 2:
@@ -244,7 +242,7 @@ def batalha():
                 print("\n1 - Ver inventário")
                 print("2 - Usar item")
                 print("3 - Voltar")
-                escolha = input("Escolha: ")
+                escolha = input("Escolha uma opção: ")
 
                 if escolha == "1":
                     mostrar_inventario()
@@ -255,34 +253,38 @@ def batalha():
                 elif escolha == "3":
                     break
                 else:
-                    print("Opção inválida.")
-            time.sleep(1)
+                    print("Opção inválida. Tente novamente.")
 
         elif acao == 3:
-            print("Você fugiu da batalha.")
-            break
+            chance_fuga = random.randint(1, 100)
+            if chance_fuga <= 40:
+                print("Você fugiu com sucesso!")
+                break
+            else:
+                print("O inimigo te impede de fugir!")
+                continue
         else:
-            print("Ação inválida.")
-            time.sleep(1)
+            print("Opção inválida, escolha novamente.")
 
         if vida_inimigo > 0:
             dano = random.randint(5, dano_inimigo)
             vidaPlayer -= dano
-            print(f"\nO {tipo_inimigo} atacou e causou {dano} de dano.")
+            print(f"\nO {tipo_inimigo} te atacou e causou {dano} de dano.")
             if vidaPlayer <= 0:
                 print("Você foi derrotado.")
-
+                break
+        
         time.sleep(2)  
         limpar()
 
-
-def batalhaBOSS():
+def batalhaBOSSFinal():
     global vidaPlayer, manaPlayer, xp, nivel
 
-    boss = {"nome": "......C̷̻̿U̷̼̜͊̐K̴̯̜̑͘T̸̜̤̽̒H̷̞̱̓U̸͉̚L̵̦̍Ǘ̸̥̯͗......", "vida": 500, "dano": 99999}
+    boss = {"nome": "......C̷̻̿U̷̼̜͊̐K̴̯̜̑͘T̸̜̤̽̒H̷̞̱̓U̸͉̚L̵̦̍Ǘ̸̥̯͗......", "vida": 99999, "dano": 99999}
     vida_boss = boss["vida"]
     tipo_boss = boss["nome"]
     dano_boss = boss["dano"]
+    limpar()
     print_lento(".....")
     print_lento("\nVocê se encontra no vazio absoluto.")
     print_lento("\nA gravidade some... o som cessa... o tempo parece congelar.")
@@ -305,7 +307,7 @@ def batalhaBOSS():
 
     while vida_boss > 0 and vidaPlayer > 0:
         print(f"\nSeu turno | Vida: {vidaPlayer} | Mana: {manaPlayer}")
-        print(f"{tipo_boss} | Vida: {vida_boss}")
+        print(f"{tipo_boss} | Vida: ????????")
         print("1 - Atacar\n2 - Inventário\n3 - Fugir")
         manaPlayer += 10
 
@@ -345,58 +347,90 @@ def batalhaBOSS():
             vidaPlayer -= dano
             print(f"O {tipo_boss} atacou e causou {dano} de dano.")
             if vidaPlayer <= 0:
-                print(f"Você foi derrotado pelo {tipo_boss}...")
+                limpartxt()
+                print_lento(f"\nVocê foi derrotado pelo {tipo_boss}...")
+                print_lento(f"\n Obrigado por jogar a Demo")
                 return
 
     print(f" Parabéns! Você derrotou o {tipo_boss}!")
     print("E assim Acaba  ")
 
-
-
 criarP()
 
-print_lento("\nVocê acorda em uma masmorra, acorrentado e com a cabeça latejando...")
-print_lento("\nCom esforço, você se liberta das correntes enferrujadas e sai da cela escura.")
-print_lento("\nMais à frente, um barulho estranho ecoa pelos corredores úmidos e silenciosos...")
+print_lento("\nZumbido... escuridão.")
+print_lento("\nSua cabeça explode de dor. Mil martelos batem dentro de você.")
+print_lento("\nVocê acorda em uma cela fria e úmida, preso por correntes de gelo.")
+print_lento("\nLuz fraca entra pelas frestas de uma porta enferrujada.")
+print_lento("\nCom esforço, você quebra as correntes e rasteja até a porta.")
+print_lento("\nAo empurrá-la, um rangido ecoa pelo corredor vazio...")
+print_lento("\nVocê não está sozinho.")
+print_lento("\nÀ frente, um som estranho rompe o silêncio.")
 print_lento("....")
 
 limpartxt()
 
 batalha()
 
-limpar()
+print_lento("\n...............")
+
+batalha()
 
 limpar()
-print_lento("\nApós a batalha, você continua vagando pela masmorra escura e opressora...")
 
-print_lento("\nVocê sente que está sendo observado.")
-print_lento("\nDe repente, um toque gélido em seu ombro congela sua espinha.")
+print_lento("\nApós a batalha, você continua sua jornada pela masmorra sombria...")
 
-print_lento("\n— EI! Você aí, carinha esquisito!")
-print_lento("\n— O que cê tá fazendo nessa masmorra, hein?")
-print_lento("\n— Vixi... tá todo sujo, empoeirado... parece que saiu direto do inferno.")
+print_lento("\nSente olhos sobre você.")
+print_lento("\nDe repente, um toque gelado no ombro congela sua espinha.")
+
+print_lento("\n— Ei, estranho!")
+print_lento("\n— O que cê tá fazendo aqui? Parece que saiu do inferno...")
 print_lento("......")
-print_lento("\n— Que foi? Um gato comeu sua língua?")
-print_lento("\n— Eh... isso não importa agora.")
-print_lento("\n— Meu nome é Moacir.")
+print_lento("\n— Que foi? Perdeu a língua?")
+print_lento("\n— Não importa. Meu nome é Moacir.")
 
 print_lento(f"\n# Você escreve seu nome num pedaço de papel sujo que Moacir te entrega #")
-print_lento(f"\n— {nome.upper()}?! Hahaha, que nome massa! Nunca conheci alguém com esse nome...")
+print_lento(f"\n— {nome.upper()}?! Hahaha, que nome legal!")
 
-print_lento(f"\n— Vem comigo, {nome}. Eu sei onde fica a saída dessa encrenca.")
+print_lento(f"\n— Vamos, {nome.capitalize()}. Sei onde fica a saída.")
+
+limpartxt()
 
 limpartxt()
 
-limpartxt()
-print("Vocês dois caminham cautelosamente até a saída da masmorra...")
+print_lento("Vocês caminham cautelosamente pela masmorra...")
 
 limpartxt()
-print_lento("De repente, uma luz intensa atravessa a escuridão...")
 
-print_lento("Você é cegado pelo brilho do desconhecido.")
+print_lento("\nSaindo, a floresta surge diante de você. Árvores gigantescas, quase humanas, com galhos como mãos que tentam agarrar o céu.")
+print_lento("\nMas Moacir desapareceu. Só resta o farfalhar das folhas e o uivo distante de um predador.")
+print_lento("\nAlgo está errado.")
+print_lento("\nA floresta parece viva, e o medo te envolve. Você está mais sozinho do que nunca.")
+print_lento("\nO silêncio é ensurdecedor.")
 
-print_lento("..........")
+limpartxt()
+
+print_lento("\nUm som abafado rompe o silêncio. Algo se move na escuridão.")
+print_lento("\nO vento gela, e o ar está pesado com um perigo iminente.")
+print_lento("\nTrês sombras surgem entre as árvores, esperando por você...")
+print_lento("........")
+
+batalha()
+
+print_lento("\n...............")
+
+batalha()
+
+print_lento("\n...............")
+
+batalha()
 
 limpar()
 
-batalhaBOSS()
+print_lento("\nApós a última batalha, o silêncio retorna.")
+print_lento("\nA dor na sua cabeça é insuportável, como agulhas perfurando sua mente.")
+print_lento("\nSua visão turva, e o mundo ao seu redor começa a desintegrar.")
+print_lento("\n...")
+print_lento("\nVocê tenta resistir, mas a dor te consome. Seus sentidos se perdem.")
+print_lento("\nA presença de algo imenso e opressor toma conta de você...")
+
+batalhaBOSSFinal()
